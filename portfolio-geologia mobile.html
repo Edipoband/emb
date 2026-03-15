@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Édipo Mendonça Bandeira — Geólogo em Formação</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ─── Variáveis ─────────────────────────────────────────── */
+    :root {
+      --stone:   #1a1814;
+      --earth:   #2e2720;
+      --rock:    #4a3f35;
+      --sand:    #c5b49a;
+      --quartz:  #e8ddd0;
+      --cream:   #f5f0e8;
+      --amber:   #b87333;
+      --gold:    #d4a843;
+      --moss:    #5a6b4a;
+      --sky:     #6b8fa3;
+    }
+
+    /* ─── Reset & Base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--stone);
+      color: var(--quartz);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ─── Grain overlay ─────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.35;
+    }
+
+    /* ─── Scrollbar ─────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--stone); }
+    ::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
+
+    /* ─── Navigation ────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(26,24,20,0.95) 0%, transparent 100%);
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-monogram {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sand);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ─── Hero ──────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8rem 4rem 5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .hero-tag::before {
+      content: '';
+      display: inline-block;
+      width: 2rem;
+      height: 1px;
+      background: var(--amber);
+    }
+
+    h1.hero-name {
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+
+    h1.hero-name em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--sand);
+      margin-top: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--stone);
+      background: var(--gold);
+      padding: 0.9rem 1.8rem;
+      text-decoration: none;
+      transition: all 0.3s;
+      width: fit-content;
+    }
+
+    .hero-cta:hover {
+      background: var(--amber);
+      transform: translateX(4px);
+    }
+
+    /* Foto */
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .photo-frame {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    /* ── Substitua o src pela URL da sua foto ── */
+    .photo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      filter: grayscale(20%) sepia(15%);
+      opacity: 0.85;
+    }
+
+    /* Placeholder quando não há foto */
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      background: var(--earth);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      border-left: 1px solid var(--rock);
+    }
+
+    .photo-placeholder svg {
+      width: 60px;
+      height: 60px;
+      opacity: 0.3;
+    }
+
+    .photo-placeholder span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rock);
+    }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, var(--stone) 0%, transparent 40%);
+    }
+
+    /* Decorative lines */
+    .hero-lines {
+      position: absolute;
+      bottom: 3rem;
+      right: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 3;
+    }
+
+    .hero-lines span {
+      display: block;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.4;
+      transform-origin: right;
+      animation: lineGrow 1s ease forwards;
+    }
+
+    .hero-lines span:nth-child(1) { width: 80px; animation-delay: 0.3s; }
+    .hero-lines span:nth-child(2) { width: 50px; animation-delay: 0.5s; }
+    .hero-lines span:nth-child(3) { width: 65px; animation-delay: 0.7s; }
+
+    @keyframes lineGrow {
+      from { transform: scaleX(0); opacity: 0; }
+      to { transform: scaleX(1); opacity: 0.4; }
+    }
+
+    /* Coordinates decoration */
+    .hero-coords {
+      position: absolute;
+      bottom: 2rem;
+      left: 4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--rock);
+      z-index: 3;
+    }
+
+    /* ─── Section base ──────────────────────────────────────── */
+    section {
+      padding: 6rem 0;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 4rem;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--rock), transparent);
+      max-width: 200px;
+    }
+
+    h2.section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--cream);
+      margin-bottom: 2rem;
+    }
+
+    h2.section-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    p {
+      color: var(--sand);
+      font-size: 1.1rem;
+      max-width: 620px;
+    }
+
+    /* ─── Objetivo ──────────────────────────────────────────── */
+    #objetivo {
+      background: var(--earth);
+      border-top: 1px solid var(--rock);
+      border-bottom: 1px solid var(--rock);
+    }
+
+    .objetivo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .objetivo-quote {
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--cream);
+      border-left: 2px solid var(--gold);
+      padding-left: 2rem;
+    }
+
+    .objetivo-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid var(--rock);
+      color: var(--sand);
+      transition: all 0.3s;
+    }
+
+    .tag:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ─── Formação ──────────────────────────────────────────── */
+    #formacao .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--amber), transparent);
+    }
+
+    .timeline-item {
+      padding: 0 0 2.5rem 2.5rem;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 8px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--amber);
+      border: 2px solid var(--stone);
+    }
+
+    .timeline-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--amber);
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-title {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--cream);
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-sub {
+      font-size: 0.95rem;
+      color: var(--sand);
+      font-style: italic;
+    }
+
+    .timeline-desc {
+      font-size: 1rem;
+      color: var(--sand);
+      margin-top: 0.5rem;
+      max-width: 540px;
+    }
+
+    /* ─── Habilidades ───────────────────────────────────────── */
+    #habilidades {
+      background: var(--earth);
+      border-top: 1px solid var(--rock);
+      border-bottom: 1px solid var(--rock);
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .skill-card {
+      padding: 2rem;
+      border: 1px solid var(--rock);
+      position: relative;
+      transition: border-color 0.3s;
+    }
+
+    .skill-card:hover { border-color: var(--amber); }
+
+    .skill-card::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+
+    .skill-card:hover::before { width: 100%; }
+
+    .skill-icon {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      display: block;
+      text-align: center;
+    }
+
+    .skill-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+    }
+
+    .skill-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .skill-items li {
+      font-size: 0.95rem;
+      color: var(--sand);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .skill-items li::before {
+      content: '—';
+      color: var(--rock);
+      font-size: 0.7rem;
+    }
+
+    /* ─── Idiomas ───────────────────────────────────────────── */
+    .lang-row {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .lang-name {
+      font-size: 1rem;
+      color: var(--cream);
+      min-width: 120px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .lang-flag {
+      width: 22px;
+      height: 15px;
+      object-fit: cover;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .lang-level {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      min-width: 200px;
+      text-transform: uppercase;
+    }
+
+    .lang-bar {
+      flex: 1;
+      height: 2px;
+      background: var(--rock);
+      max-width: 200px;
+      position: relative;
+    }
+
+    .lang-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, var(--amber), var(--gold));
+    }
+
+    /* ─── Contato ───────────────────────────────────────────── */
+    #contato {
+      background: var(--stone);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .contact-intro {
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 300;
+      line-height: 1.4;
+      color: var(--cream);
+      font-style: italic;
+    }
+
+    .contact-items {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .contact-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .contact-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .contact-value {
+      font-size: 1.1rem;
+      color: var(--quartz);
+      text-decoration: none;
+      transition: color 0.3s;
+      word-break: break-all;
+    }
+
+    a.contact-value:hover { color: var(--gold); }
+
+    /* ─── Footer ────────────────────────────────────────────── */
+    footer {
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--rock);
+    }
+
+    footer span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--rock);
+    }
+
+    /* ─── Animação de entrada ────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-left > * {
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards;
+    }
+
+    .hero-left .hero-tag    { animation-delay: 0.3s; }
+    .hero-left h1           { animation-delay: 0.5s; }
+    .hero-left .hero-title  { animation-delay: 0.7s; }
+    .hero-left .hero-cta    { animation-delay: 0.9s; }
+
+    /* ─── Responsivo ────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      #hero {
+        grid-template-columns: 1fr;
+        grid-template-rows: 340px auto;
+        min-height: 100vh;
+      }
+
+      .hero-right {
+        display: block;
+        grid-row: 1;
+        position: relative;
+        height: 340px;
+      }
+
+      .hero-right .photo-frame {
+        position: absolute;
+        inset: 0;
+      }
+
+      .hero-right .photo-container img {
+        object-position: center 20%;
+      }
+
+      .photo-overlay {
+        background: linear-gradient(to bottom, transparent 50%, var(--stone) 100%);
+      }
+
+      .hero-left {
+        grid-row: 2;
+        padding: 2rem 2rem 4rem;
+        justify-content: flex-start;
+      }
+
+      .hero-lines { display: none; }
+      .hero-coords { display: none; }
+
+      .container { padding: 0 2rem; }
+      .objetivo-grid,
+      .contact-grid,
+      .skills-grid { grid-template-columns: 1fr; gap: 2rem; }
+      nav { padding: 1rem 2rem; }
+      .nav-links { gap: 1.5rem; }
+      footer { padding: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ────────────────────────────────────────────── -->
+  <nav>
+    <span class="nav-monogram">É.M.B.</span>
+    <ul class="nav-links">
+      <li><a href="#objetivo">Objetivo</a></li>
+      <li><a href="#formacao">Formação</a></li>
+      <li><a href="#habilidades">Habilidades</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ───────────────────────────────────────────── -->
+  <section id="hero" style="opacity:1; transform:none; padding:0;">
+    <div class="hero-left">
+      <div class="hero-tag">Geólogo em Formação</div>
+
+      <h1 class="hero-name">
+        Édipo <em>Mendonça</em><br>Bandeira
+      </h1>
+
+      <p class="hero-title">
+        Bacharelando em Geologia &nbsp;·&nbsp; IGc-USP
+      </p>
+
+      <a class="hero-cta" href="#contato">
+        Entrar em contato →
+      </a>
+
+      <span class="hero-coords">São Bernardo do Campo, SP — Brasil</span>
+    </div>
+
+    <div class="hero-right">
+      <div class="photo-frame">
+        <div class="photo-container">
+          <!--
+            ╔══════════════════════════════════════════════════╗
+            ║  FOTO: substitua o bloco abaixo.                ║
+            ║  Opção A — arquivo local:                       ║
+            ║    <img src="foto.jpg" alt="Seu Nome">          ║
+            ║  Opção B — URL externa:                         ║
+            ║    <img src="https://..." alt="Seu Nome">       ║
+            ╚══════════════════════════════════════════════════╝
+          -->
+          <img src="foto.jpg" alt="Édipo Mendonça Bandeira">
+        </div>
+        <div class="photo-overlay"></div>
+      </div>
+      <div class="hero-lines">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OBJETIVO ───────────────────────────────────────── -->
+  <section id="objetivo">
+    <div class="container">
+      <div class="section-label">01 — Objetivo</div>
+      <div class="objetivo-grid">
+        <blockquote class="objetivo-quote">
+          Estágio em análise de mercado de
+          <strong>commodities minerais</strong> ou
+          <strong>energéticas</strong>, com foco em
+          research, consultoria ou instituições financeiras.
+        </blockquote>
+        <div class="objetivo-detail">
+          <p>
+            Busco aplicar minha formação em Geologia Econômica e Geofísica na análise técnica de recursos minerais, interpretação de dados geocientíficos e avaliação de fatores geológicos que influenciam a oferta e a dinâmica dos mercados de commodities.
+          </p>
+          <div class="tag-list">
+            <span class="tag">Geologia Econômica</span>
+            <span class="tag">Commodities Minerais</span>
+            <span class="tag">Exploração Mineral</span>
+            <span class="tag">Geofísica</span>
+            <span class="tag">Sensoriamento Remoto</span>
+            <span class="tag">Research</span>
+            <span class="tag">Consultoria</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOBRE / FORMAÇÃO ───────────────────────────────── -->
+  <section id="formacao">
+    <div class="container">
+      <div class="section-label">02 — Formação</div>
+      <h2 class="section-title">Trajetória <em>Acadêmica</em></h2>
+
+      <div class="timeline">
+
+        <!-- Graduação -->
+        <div class="timeline-item">
+          <div class="timeline-year">2021 – Presente</div>
+          <div class="timeline-title">Bacharelado em Geologia</div>
+          <div class="timeline-sub">Universidade de São Paulo — IGc-USP</div>
+          <p class="timeline-desc">
+            Último ano de curso, com ênfases em Geologia Econômica, Economia Mineral, Mercado de Commodities Minerais, Geofísica, Geoprocessamento e Sensoriamento Remoto.
+          </p>
+        </div>
+
+        <!-- TCC -->
+        <div class="timeline-item">
+          <div class="timeline-year">Jan/2026 – Dez/2026</div>
+          <div class="timeline-title">Trabalho de Conclusão de Curso</div>
+          <div class="timeline-sub">IGc-USP</div>
+          <p class="timeline-desc">
+            Métodos aerogeofísicos e de sensoriamento remoto aplicados à prospecção mineral de urânio na Província Uranífera de Lagoa Real, BA. Integração e interpretação de dados aerogeofísicos e imagens de sensoriamento remoto para identificação de anomalias associadas à mineralização.
+          </p>
+        </div>
+
+        <!-- Monitoria -->
+        <div class="timeline-item">
+          <div class="timeline-year">Fev/2026 – Jul/2026</div>
+          <div class="timeline-title">Monitor — Geologia Econômica</div>
+          <div class="timeline-sub">IGc-USP</div>
+          <p class="timeline-desc">
+            Apoio a alunos em atividades práticas e teóricas, desenvolvimento de materiais didáticos e revisão de conceitos sobre depósitos minerais, metalogênese e avaliação econômica de recursos minerais.
+          </p>
+        </div>
+
+        <!-- Mapeamento -->
+        <div class="timeline-item">
+          <div class="timeline-year">Jan/2025 – Dez/2025</div>
+          <div class="timeline-title">Disciplina de Mapeamento Geológico</div>
+          <div class="timeline-sub">IGc-USP</div>
+          <p class="timeline-desc">
+            Experiência com aerogamaespectrometria, magnetometria, gravimetria, análise de componentes principais (PCA), índices espectrais e petrografia de lâminas delgadas.
+          </p>
+        </div>
+
+        <!-- Sensoriamento Remoto -->
+        <div class="timeline-item">
+          <div class="timeline-year">Jul/2024 – Dez/2024</div>
+          <div class="timeline-title">Mini Projeto — Sensoriamento Remoto</div>
+          <div class="timeline-sub">IGc-USP</div>
+          <p class="timeline-desc">
+            Elaboração de mapas gamaespectrométricos e índices espectrais aplicados à correlação com mapas geológicos da região da mina de urânio em Santa Quitéria, CE. Interpretação integrada de dados espectrais para caracterização de unidades litológicas e anomalias radiométricas.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HABILIDADES ────────────────────────────────────── -->
+  <section id="habilidades">
+    <div class="container">
+      <div class="section-label">03 — Habilidades</div>
+      <h2 class="section-title">Competências <em>Técnicas</em></h2>
+
+      <div class="skills-grid">
+
+        <!-- CARD 1 -->
+        <div class="skill-card">
+          <span class="skill-icon">📡</span>
+          <div class="skill-name">Geofísica & Sensoriamento</div>
+          <ul class="skill-items">
+            <li>Aerogamaespectrometria</li>
+            <li>Magnetometria & Gravimetria</li>
+            <li>Índices espectrais</li>
+            <li>Análise de componentes principais (PCA)</li>
+          </ul>
+        </div>
+
+        <!-- CARD 2 -->
+        <div class="skill-card">
+          <span class="skill-icon">🔬</span>
+          <div class="skill-name">Análise & Interpretação</div>
+          <ul class="skill-items">
+            <li>Dados geofísicos e geológicos</li>
+            <li>Petrografia de lâminas delgadas</li>
+            <li>Mapas geológicos e geofísicos</li>
+            <li>Prospecção e avaliação de recursos</li>
+          </ul>
+        </div>
+
+        <!-- CARD 3 -->
+        <div class="skill-card">
+          <span class="skill-icon">💻</span>
+          <div class="skill-name">Software & SIG</div>
+          <ul class="skill-items">
+            <li>QGIS</li>
+            <li>Geoscience Analyst</li>
+            <li>Orange Data Mining</li>
+            <li>ISATIS (noções básicas)</li>
+            <li>Pacote Microsoft Office</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- IDIOMAS -->
+      <div style="margin-top: 3.5rem;">
+        <div class="section-label" style="margin-bottom:1.5rem;">Idiomas</div>
+        <div class="lang-row">
+
+          <div class="lang-item">
+            <span class="lang-name"><img class="lang-flag" src="https://flagcdn.com/w40/br.png" alt="Brasil">Português</span>
+            <span class="lang-level">Nativo</span>
+            <div class="lang-bar"><div class="lang-fill" style="width:100%"></div></div>
+          </div>
+
+          <div class="lang-item">
+            <span class="lang-name"><img class="lang-flag" src="https://flagcdn.com/w40/us.png" alt="EUA">Inglês</span>
+            <span class="lang-level">Fluente</span>
+            <div class="lang-bar"><div class="lang-fill" style="width:100%"></div></div>
+          </div>
+
+          <div class="lang-item">
+            <span class="lang-name"><img class="lang-flag" src="https://flagcdn.com/w40/es.png" alt="Espanha">Espanhol</span>
+            <span class="lang-level">Boa leitura e compreensão</span>
+            <div class="lang-bar"><div class="lang-fill" style="width:50%"></div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTATO ────────────────────────────────────────── -->
+  <section id="contato">
+    <div class="container">
+      <div class="section-label">04 — Contato</div>
+      <div class="contact-grid">
+
+        <p class="contact-intro">
+          Aberto a oportunidades de estágio.<br>
+          Vamos conversar?
+        </p>
+
+        <div class="contact-items">
+
+          <div class="contact-item">
+  <span class="contact-label">E-mail</span>
+  <a href="mailto:edipoband@hotmail.com" class="contact-value">
+    edipoband@hotmail.com
+  </a>
+</div>
+
+          <div class="contact-item">
+            <span class="contact-label">Telefone / WhatsApp</span>
+            <a href="tel:+5511987736323" class="contact-value">
+              +55 (11) 98773-6323
+            </a>
+          </div>
+
+          <div class="contact-item">
+            <span class="contact-label">LinkedIn</span>
+            <a href="https://www.linkedin.com/in/édipo-bandeira-09aa873a6" target="_blank" rel="noopener" class="contact-value">
+              linkedin.com/in/édipo-bandeira
+            </a>
+          </div>
+
+          <div class="contact-item">
+            <span class="contact-label">Localização</span>
+            <span class="contact-value" style="color: var(--sand);">
+              São Bernardo do Campo, SP — Brasil
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <footer>
+    <span>© 2026 — Édipo Mendonça Bandeira</span>
+    <span>Geologia · IGc-USP</span>
+  </footer>
+
+  <!-- ── SCRIPTS ────────────────────────────────────────── -->
+  <script>
+    const sections = document.querySelectorAll('section:not(#hero)');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>
