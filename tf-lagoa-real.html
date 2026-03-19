@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TF — Província Uranífera de Lagoa Real | Édipo Bandeira</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --stone:   #1a1814;
+      --earth:   #2e2720;
+      --rock:    #4a3f35;
+      --sand:    #c5b49a;
+      --quartz:  #e8ddd0;
+      --cream:   #f5f0e8;
+      --amber:   #b87333;
+      --gold:    #d4a843;
+      --page-bg: #f2ece2;
+      --page-text: #2a2118;
+      --page-sub: #6b5c4e;
+      --page-border: #d9cfc3;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--page-bg);
+      color: var(--page-text);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--page-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
+
+    /* ─── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(242, 236, 226, 0.95);
+      backdrop-filter: blur(4px);
+      border-bottom: 1px solid var(--page-border);
+    }
+
+    .nav-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.3s;
+    }
+
+    .nav-back:hover { color: var(--stone); }
+
+    .nav-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--page-sub);
+    }
+
+    /* ─── Hero do projeto ───────────────────────────────────── */
+    .project-hero {
+      padding: 8rem 0 4rem;
+      background: var(--stone);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--page-bg));
+    }
+
+    .hero-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 4rem;
+    }
+
+    .project-category {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .project-category::before {
+      content: '';
+      display: inline-block;
+      width: 2rem;
+      height: 1px;
+      background: var(--amber);
+    }
+
+    .project-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--cream);
+      margin-bottom: 2rem;
+      max-width: 750px;
+    }
+
+    .project-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--amber);
+      color: var(--amber);
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .project-meta {
+      display: flex;
+      gap: 3rem;
+      margin-top: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .meta-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rock);
+    }
+
+    .meta-value {
+      font-size: 0.95rem;
+      color: var(--sand);
+    }
+
+    /* ─── Conteúdo principal ────────────────────────────────── */
+    .project-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 4rem 6rem;
+    }
+
+    /* Imagem de localização */
+    .figure-block {
+      margin: 3rem 0;
+      border: 1px solid var(--page-border);
+      overflow: hidden;
+    }
+
+    .figure-block img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Placeholder da imagem */
+    .figure-placeholder {
+      width: 100%;
+      height: 380px;
+      background: var(--quartz);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      border: 2px dashed var(--page-border);
+    }
+
+    .figure-placeholder svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.3;
+    }
+
+    .figure-placeholder span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--page-sub);
+      opacity: 0.6;
+    }
+
+    .figure-caption {
+      padding: 0.8rem 1.2rem;
+      background: var(--quartz);
+      border-top: 1px solid var(--page-border);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--page-sub);
+    }
+
+    /* Seções do texto */
+    .section-block {
+      margin-bottom: 3.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .section-block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--page-border);
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 400;
+      color: var(--page-text);
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    h2 em { font-style: italic; color: var(--amber); }
+
+    p {
+      color: var(--page-sub);
+      font-size: 1.1rem;
+      line-height: 1.85;
+      margin-bottom: 1rem;
+      max-width: 100%;
+    }
+
+    p strong {
+      color: var(--page-text);
+      font-weight: 600;
+    }
+
+    /* Etapas — pipeline horizontal */
+    .etapas-scroll-wrapper {
+      overflow-x: auto;
+      margin-top: 1.5rem;
+      padding-bottom: 1rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--amber) var(--quartz);
+    }
+
+    .etapas-scroll-wrapper::-webkit-scrollbar { height: 4px; }
+    .etapas-scroll-wrapper::-webkit-scrollbar-track { background: var(--quartz); }
+    .etapas-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
+
+    .etapas-pipeline {
+      display: flex;
+      align-items: stretch;
+      min-width: max-content;
+    }
+
+    .etapa-wrapper {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .etapa-card {
+      width: 240px;
+      padding: 1.4rem 1.2rem;
+      border: 1px solid var(--page-border);
+      background: white;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .etapa-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.8rem;
+      display: block;
+      text-align: center;
+    }
+
+    .etapa-card:hover {
+      border-color: var(--amber);
+      box-shadow: 0 4px 16px rgba(184,115,51,0.1);
+    }
+
+    .etapa-card.ativa {
+      border-color: var(--amber);
+      background: #fffaf4;
+    }
+
+    .etapa-arrow {
+      display: flex;
+      align-items: center;
+      align-self: center;
+      padding: 0 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .etapa-arrow svg {
+      width: 28px;
+      height: 28px;
+      color: var(--page-border);
+    }
+
+    .etapa-arrow.ativa svg { color: var(--amber); }
+
+    .etapa-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .etapa-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--page-text);
+      margin-bottom: 0.6rem;
+      line-height: 1.3;
+    }
+
+    .etapa-desc {
+      font-size: 0.85rem;
+      color: var(--page-sub);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .etapa-status {
+      display: inline-block;
+      margin-top: 0.9rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      align-self: flex-start;
+    }
+
+    .etapa-status.andamento {
+      background: #fff3e0;
+      color: var(--amber);
+      border: 1px solid #f0c070;
+    }
+
+    .etapa-status.pendente {
+      background: var(--quartz);
+      color: var(--page-sub);
+      border: 1px solid var(--page-border);
+    }
+
+    .etapas-hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      color: var(--page-sub);
+      opacity: 0.5;
+      margin-top: 0.8rem;
+    }
+
+    /* Produtos esperados */
+    .produtos-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .produto-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.8rem 1rem;
+      background: white;
+      border: 1px solid var(--page-border);
+      font-size: 1rem;
+      color: var(--page-sub);
+    }
+
+    .produto-item::before {
+      content: '—';
+      color: var(--amber);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* Galeria de resultados */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .gallery-item {
+      border: 1px dashed var(--page-border);
+      background: var(--quartz);
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .gallery-item span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--page-sub);
+      opacity: 0.5;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    .gallery-note {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--page-sub);
+      opacity: 0.6;
+      text-align: center;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    /* Divisor */
+    hr {
+      border: none;
+      border-top: 1px solid var(--page-border);
+      margin: 3rem 0;
+    }
+
+    /* ─── Footer ────────────────────────────────────────────── */
+    footer {
+      background: var(--stone);
+      padding: 2.5rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--rock);
+    }
+
+    footer a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    footer a:hover { color: var(--gold); }
+
+    /* ─── Responsivo ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero-container, .project-body { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .project-meta { gap: 1.5rem; }
+      .etapas-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ────────────────────────────────────────────── -->
+  <nav>
+    <a class="nav-back" href="../index.html">← Voltar ao portfólio</a>
+    <span class="nav-title">Trabalho Final · IGc-USP</span>
+  </nav>
+
+  <!-- ── HERO ───────────────────────────────────────────── -->
+  <div class="project-hero">
+    <div class="hero-container">
+      <div class="project-category">Trabalho Final de Graduação</div>
+
+      <h1 class="project-title">
+        Métodos aerogeofísicos e de sensoriamento remoto aplicados à
+        <em>prospecção mineral de urânio</em> na Província Uranífera de Lagoa Real, BA
+      </h1>
+
+      <span class="status-badge">Em andamento · 2026</span>
+
+      <div class="project-meta">
+        <div class="meta-item">
+          <span class="meta-label">Autor</span>
+          <span class="meta-value">Édipo Mendonça Bandeira</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Orientador</span>
+          <span class="meta-value">Prof. Dr. Marco Antonio Couto Jr.</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Coorientadora</span>
+          <span class="meta-value">Profa. Dra. Camila Duelis Viana</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Instituição</span>
+          <span class="meta-value">IGc-USP</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Período</span>
+          <span class="meta-value">Jan – Dez / 2026</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CORPO ──────────────────────────────────────────── -->
+  <div class="project-body">
+
+    <!-- Imagem de localização -->
+    <div class="section-block">
+      <div class="figure-block">
+        <!--
+          ╔══════════════════════════════════════════════════════╗
+          ║  FIGURA: substitua o bloco abaixo pela sua imagem.  ║
+          ║  Coloque o arquivo na mesma pasta que este HTML e   ║
+          ║  use:  <img src="localizacao.jpg" alt="...">        ║
+          ╚══════════════════════════════════════════════════════╝
+        -->
+        <div class="figure-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4a3f35" stroke-width="1">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Figura de localização · Em breve</span>
+        </div>
+        <div class="figure-caption">
+          Fig. 1 — Mapa de localização da Província Uranífera de Lagoa Real (PULR) e área de estudo, centro-sul do estado da Bahia.
+        </div>
+      </div>
+    </div>
+
+    <!-- Contexto -->
+    <div class="section-block">
+      <div class="section-label">Contexto</div>
+      <h2>A Província Uranífera de <em>Lagoa Real</em></h2>
+      <p>
+        A Província Uranífera de Lagoa Real (PULR), localizada no centro-sul da Bahia, é uma das mais importantes províncias uraníferas do Brasil. Seus depósitos estão associados a processos metassomáticos que afetaram granitos e gnaisses paleoproterozoicos, com destaque para os <strong>albititos</strong> — rochas intensamente alteradas que hospedam as principais mineralizações de urânio da região.
+      </p>
+      <p>
+        Embora a área já conte com mapeamentos geológicos e levantamentos geofísicos anteriores, a <strong>integração sistemática de dados aerogeofísicos com técnicas de sensoriamento remoto</strong> ainda representa uma abordagem relevante para ampliar a compreensão espacial das mineralizações conhecidas e identificar novas áreas com potencial exploratório.
+      </p>
+    </div>
+
+    <hr>
+
+    <!-- Objetivo -->
+    <div class="section-block">
+      <div class="section-label">Objetivo</div>
+      <h2>O que este trabalho <em>busca</em></h2>
+      <p>
+        O objetivo principal é gerar e analisar produtos geofísicos e de sensoriamento remoto para identificar zonas favoráveis à mineralização de urânio na PULR. De forma complementar, o trabalho avalia se a integração desses produtos permite indicar <strong>novas áreas com potencial exploratório</strong> ainda não destacadas em estudos anteriores.
+      </p>
+    </div>
+
+    <hr>
+
+    <!-- Dados e métodos -->
+    <div class="section-block">
+      <div class="section-label">Dados & Métodos</div>
+      <h2>Fontes de dados e <em>abordagem metodológica</em></h2>
+      <p>
+        O trabalho utiliza dados provenientes de múltiplas fontes públicas, integrados e analisados com ferramentas de geoprocessamento e sensoriamento remoto:
+      </p>
+
+      <div class="produtos-list">
+        <div class="produto-item">
+          <span><strong>Dados gamaespectrométricos e magnetométricos</strong> disponibilizados pela Companhia Baiana de Pesquisa Mineral (CBPM) e pelo Serviço Geológico do Brasil (SGB/CPRM)</span>
+        </div>
+        <div class="produto-item">
+          <span><strong>Dados geoquímicos</strong> obtidos a partir da base do SGB e da literatura científica</span>
+        </div>
+        <div class="produto-item">
+          <span><strong>Imagens multiespectrais</strong> dos sensores ASTER, Landsat 8/9 e Sentinel-2, adquiridas via Google Earth Engine</span>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Etapas -->
+    <div class="section-block">
+      <div class="section-label">Desenvolvimento</div>
+      <h2>Etapas do <em>projeto</em></h2>
+
+      <div class="etapas-scroll-wrapper">
+        <div class="etapas-pipeline">
+
+          <div class="etapa-wrapper">
+            <div class="etapa-card ativa">
+              <span class="etapa-icon">🗄️</span>
+              <div class="etapa-num">Etapa 01</div>
+              <div class="etapa-title">Consolidação da base de dados</div>
+              <p class="etapa-desc">Coleta, organização e padronização dos dados aerogeofísicos, geoquímicos e imagens de sensoriamento remoto de diferentes fontes públicas.</p>
+              <span class="etapa-status andamento">Em andamento</span>
+            </div>
+          </div>
+
+          <div class="etapa-arrow ativa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+          <div class="etapa-wrapper">
+            <div class="etapa-card ativa">
+              <span class="etapa-icon">🗺️</span>
+              <div class="etapa-num">Etapa 02</div>
+              <div class="etapa-title">Geração dos produtos básicos</div>
+              <p class="etapa-desc">Mapas de K, eU, eTh, contagem total, composições ternárias, razões de radioelementos, Fator F, urânio e potássio anômalos, filtros magnéticos, PCA e índices espectrais.</p>
+              <span class="etapa-status andamento">Em andamento</span>
+            </div>
+          </div>
+
+          <div class="etapa-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+          <div class="etapa-wrapper">
+            <div class="etapa-card">
+              <span class="etapa-icon">🔍</span>
+              <div class="etapa-num">Etapa 03</div>
+              <div class="etapa-title">Interpretação integrada</div>
+              <p class="etapa-desc">Correlação com ocorrências e depósitos conhecidos, avaliação de controles geológicos e estruturais, e identificação de novas zonas prospectivas.</p>
+              <span class="etapa-status pendente">Pendente</span>
+            </div>
+          </div>
+
+          <div class="etapa-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+          <div class="etapa-wrapper">
+            <div class="etapa-card">
+              <span class="etapa-icon">📝</span>
+              <div class="etapa-num">Etapa 04</div>
+              <div class="etapa-title">Redação final</div>
+              <p class="etapa-desc">Integração dos resultados, discussão metodológica e redação do texto final do trabalho.</p>
+              <span class="etapa-status pendente">Pendente</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <p class="etapas-hint">← Role para ver todas as etapas</p>
+    </div>
+
+    <hr>
+
+    <!-- Resultados / Galeria -->
+    <div class="section-block">
+      <div class="section-label">Resultados Parciais</div>
+      <h2>Mapas e produtos <em>gerados</em></h2>
+      <p>
+        Esta seção será atualizada conforme os produtos forem sendo gerados ao longo do desenvolvimento do trabalho.
+      </p>
+
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a3f35" stroke-width="1" opacity="0.3">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Mapa gamaespectrométrico · Em produção</span>
+        </div>
+        <div class="gallery-item">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a3f35" stroke-width="1" opacity="0.3">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Mapa magnetométrico · Em produção</span>
+        </div>
+        <div class="gallery-item">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a3f35" stroke-width="1" opacity="0.3">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Mapa de urânio anômalo · Em produção</span>
+        </div>
+        <div class="gallery-item">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a3f35" stroke-width="1" opacity="0.3">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <span>Composição PCA · Sensoriamento Remoto · Em produção</span>
+        </div>
+      </div>
+      <p class="gallery-note">Os mapas serão adicionados conforme forem sendo finalizados.</p>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <footer>
+    <span>© 2026 — Édipo Mendonça Bandeira · IGc-USP</span>
+    <a href="../index.html">← Voltar ao portfólio</a>
+  </footer>
+
+  <script>
+    const blocks = document.querySelectorAll('.section-block');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    blocks.forEach(b => observer.observe(b));
+
+    // Mostra dica de scroll horizontal só se o conteúdo transbordar
+    const wrapper = document.querySelector('.etapas-scroll-wrapper');
+    const hint = document.querySelector('.etapas-hint');
+    if (wrapper && hint) {
+      if (wrapper.scrollWidth > wrapper.clientWidth) {
+        hint.style.display = 'block';
+      }
+      wrapper.addEventListener('scroll', () => {
+        hint.style.opacity = wrapper.scrollLeft > 20 ? '0' : '0.5';
+      });
+    }
+  </script>
+
+</body>
+</html>
