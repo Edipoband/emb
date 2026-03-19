@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulação de Investimentos — Commodities Minerais | Édipo Bandeira</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --stone:      #1a1814;
+      --earth:      #2e2720;
+      --rock:       #4a3f35;
+      --sand:       #c5b49a;
+      --quartz:     #e8ddd0;
+      --cream:      #f5f0e8;
+      --amber:      #b87333;
+      --gold:       #d4a843;
+      --page-bg:    #f2ece2;
+      --page-text:  #2a2118;
+      --page-sub:   #6b5c4e;
+      --page-border:#d9cfc3;
+      --green:      #4a7c59;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--page-bg);
+      color: var(--page-text);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--page-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
+
+    /* ─── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(242, 236, 226, 0.95);
+      backdrop-filter: blur(4px);
+      border-bottom: 1px solid var(--page-border);
+    }
+
+    .nav-back {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.3s;
+    }
+
+    .nav-back:hover { color: var(--stone); }
+
+    .nav-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--page-sub);
+    }
+
+    /* ─── Hero ──────────────────────────────────────────────── */
+    .project-hero {
+      padding: 8rem 0 4rem;
+      background: var(--stone);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--page-bg));
+    }
+
+    .hero-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 4rem;
+    }
+
+    .project-category {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .project-category::before {
+      content: '';
+      display: inline-block;
+      width: 2rem;
+      height: 1px;
+      background: var(--amber);
+    }
+
+    .project-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--cream);
+      margin-bottom: 2rem;
+      max-width: 750px;
+    }
+
+    .project-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .project-meta {
+      display: flex;
+      gap: 3rem;
+      margin-top: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .meta-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rock);
+    }
+
+    .meta-value {
+      font-size: 0.95rem;
+      color: var(--sand);
+    }
+
+    /* ─── Retorno badge ─────────────────────────────────────── */
+    .retorno-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      border: 1px solid #4a7c59;
+      color: #7ec99a;
+      margin-top: 0.5rem;
+    }
+
+    /* ─── Corpo ─────────────────────────────────────────────── */
+    .project-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 4rem 6rem;
+    }
+
+    .section-block {
+      margin-bottom: 3.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .section-block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--page-border);
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 400;
+      color: var(--page-text);
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    h2 em { font-style: italic; color: var(--amber); }
+
+    p {
+      color: var(--page-sub);
+      font-size: 1.1rem;
+      line-height: 1.85;
+      margin-bottom: 1rem;
+    }
+
+    p strong { color: var(--page-text); font-weight: 600; }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--page-border);
+      margin: 3rem 0;
+    }
+
+    /* ─── Cards de ativos ───────────────────────────────────── */
+    .ativos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 1.5rem;
+    }
+
+    .ativo-card {
+      padding: 1.4rem 1.2rem;
+      border: 1px solid var(--page-border);
+      background: white;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .ativo-card:hover {
+      border-color: var(--amber);
+      box-shadow: 0 4px 16px rgba(184,115,51,0.08);
+    }
+
+    .ativo-icon {
+      font-size: 1.4rem;
+      display: block;
+      margin-bottom: 0.6rem;
+      text-align: center;
+    }
+
+    .ativo-nome {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.4rem;
+      text-align: center;
+    }
+
+    .ativo-titulo {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--page-text);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .ativo-desc {
+      font-size: 0.85rem;
+      color: var(--page-sub);
+      line-height: 1.55;
+    }
+
+    .ativo-alloc {
+      display: inline-block;
+      margin-top: 0.8rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      background: var(--quartz);
+      border: 1px solid var(--page-border);
+      color: var(--page-sub);
+    }
+
+    /* ─── Figura / Capa ─────────────────────────────────────── */
+    .figure-block {
+      margin-bottom: 3.5rem;
+      border: 1px solid var(--page-border);
+      overflow: hidden;
+    }
+
+    .figure-block img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .figure-placeholder {
+      width: 100%;
+      height: 320px;
+      background: var(--quartz);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      border: 2px dashed var(--page-border);
+    }
+
+    .figure-placeholder svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.3;
+    }
+
+    .figure-placeholder span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--page-sub);
+      opacity: 0.6;
+    }
+
+    .figure-caption {
+      padding: 0.8rem 1.2rem;
+      background: var(--quartz);
+      border-top: 1px solid var(--page-border);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--page-sub);
+    }
+
+    /* ─── Resultado highlight ───────────────────────────────── */
+    .resultado-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .resultado-item {
+      padding: 1.5rem;
+      border: 1px solid var(--page-border);
+      background: white;
+      text-align: center;
+    }
+
+    .resultado-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--page-sub);
+      margin-bottom: 0.5rem;
+    }
+
+    .resultado-valor {
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--green);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    .resultado-desc {
+      font-size: 0.85rem;
+      color: var(--page-sub);
+    }
+
+    /* ─── Metodologia steps ─────────────────────────────────── */
+    .metodologia-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .metod-item {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      padding: 1rem 1.2rem;
+      background: white;
+      border: 1px solid var(--page-border);
+      transition: border-color 0.3s;
+    }
+
+    .metod-item:hover { border-color: var(--amber); }
+
+    .metod-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+
+    .metod-text {
+      font-size: 1rem;
+      color: var(--page-sub);
+      line-height: 1.6;
+    }
+
+    .metod-text strong { color: var(--page-text); }
+
+    /* ─── Empresa júnior ────────────────────────────────────── */
+    .junior-box {
+      padding: 2rem;
+      border: 1px solid var(--amber);
+      background: #fffaf4;
+      margin-top: 1.5rem;
+    }
+
+    .junior-box p { margin-bottom: 0.8rem; }
+    .junior-box p:last-child { margin-bottom: 0; }
+
+    /* ─── Footer ────────────────────────────────────────────── */
+    footer {
+      background: var(--stone);
+      padding: 2.5rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--rock);
+    }
+
+    footer a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    footer a:hover { color: var(--gold); }
+
+    /* ─── Responsivo ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero-container, .project-body { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .project-meta { gap: 1.5rem; }
+      .ativos-grid { grid-template-columns: 1fr; }
+      .resultado-box { grid-template-columns: 1fr; }
+      footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ────────────────────────────────────────────── -->
+  <nav>
+    <a class="nav-back" href="../index.html">← Voltar ao portfólio</a>
+    <span class="nav-title">Projeto Acadêmico · GSA0418 – Geologia Econômica</span>
+  </nav>
+
+  <!-- ── HERO ───────────────────────────────────────────── -->
+  <div class="project-hero">
+    <div class="hero-container">
+      <div class="project-category">Projeto Acadêmico — Simulação de Investimentos</div>
+
+      <h1 class="project-title">
+        Simulação de investimentos no mercado de
+        <em>commodities minerais</em> e ações de empresas de mineração
+      </h1>
+
+      <span class="retorno-badge">↑ Retorno simulado de ~19% em 3 meses</span>
+
+      <div class="project-meta">
+        <div class="meta-item">
+          <span class="meta-label">Autor</span>
+          <span class="meta-value">Édipo Mendonça Bandeira</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Disciplina</span>
+          <span class="meta-value">GSA0418 — Geologia Econômica</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Docentes</span>
+          <span class="meta-value">Prof. Dr. Caetano Juliani · Profa. Dra. Lena V. S. Monteiro · Prof. Dr. Rafael S. de Assis · Prof. Dr. Saulo B. de Oliveira</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Período</span>
+          <span class="meta-value">Abr – Jul / 2025</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Instituição</span>
+          <span class="meta-value">IGc-USP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CORPO ──────────────────────────────────────────── -->
+  <div class="project-body">
+
+    <!-- Capa -->
+    <div class="figure-block">
+      <!--
+        ╔══════════════════════════════════════════════════════╗
+        ║  CAPA: substitua o bloco abaixo pela sua imagem.    ║
+        ║  Coloque o arquivo na pasta projetos/ e use:        ║
+        ║    <img src="capa-investimentos.jpg" alt="...">     ║
+        ╚══════════════════════════════════════════════════════╝
+      -->
+      <img src="capa-investimentos.jpg" alt="Capa do projeto">
+      <div class="figure-caption">
+        Fig. 1: Capa — Simulação de Investimentos em Commodities Minerais · GSA0418 Geologia Econômica · IGc-USP · 2025
+      </div>
+    </div>
+
+    <!-- Contexto -->
+    <div class="section-block">
+      <div class="section-label">Contexto</div>
+      <h2>Sobre o <em>projeto</em></h2>
+      <p>
+        No âmbito da disciplina de Geologia Econômica do IGc-USP, foi proposta uma simulação de investimentos em <strong>commodities minerais e ações de empresas de mineração</strong>, com o objetivo de integrar o conhecimento técnico geológico à análise de mercado financeiro.
+      </p>
+      <p>
+        Foi alocado um capital simulado de <strong>R$ 12.500.000,00</strong>, dividido igualmente entre commodities físicas e ações de mineradoras. O exercício envolveu pesquisa de mercado, análise geopolítica e macroeconômica, tomada de decisão de alocação e acompanhamento dos resultados ao longo de três meses — de abril a julho de 2025.
+      </p>
+    </div>
+
+    <hr>
+
+    <!-- Metodologia -->
+    <div class="section-block">
+      <div class="section-label">Metodologia</div>
+      <h2>Como o trabalho foi <em>estruturado</em></h2>
+
+      <div class="metodologia-list">
+        <div class="metod-item">
+          <span class="metod-num">01</span>
+          <span class="metod-text"><strong>Análise de cenário</strong> — levantamento do contexto geopolítico e macroeconômico global no período (guerra comercial EUA-China, tensões Rússia-Ucrânia, conflito no Oriente Médio) e seus impactos esperados nos mercados de metais.</span>
+        </div>
+        <div class="metod-item">
+          <span class="metod-num">02</span>
+          <span class="metod-text"><strong>Seleção de ativos</strong> — escolha de três commodities (Ouro, Prata e Cobre) e três ações de mineradoras (Aura Minerals, Kinross Gold e Agnico Eagle Mines), com justificativas técnicas e fundamentalistas para cada escolha.</span>
+        </div>
+        <div class="metod-item">
+          <span class="metod-num">03</span>
+          <span class="metod-text"><strong>Simulação de compra</strong> — registro das cotações em data e horário específicos (abril/2025), conversão de moedas via Banco Central do Brasil e cálculo das quantidades adquiridas com desconto de taxas e corretagem.</span>
+        </div>
+        <div class="metod-item">
+          <span class="metod-num">04</span>
+          <span class="metod-text"><strong>Acompanhamento e venda</strong> — monitoramento das cotações ao longo de três meses, escolha estratégica das datas de venda para maximizar retornos e apuração dos resultados líquidos com IR e câmbio.</span>
+        </div>
+        <div class="metod-item">
+          <span class="metod-num">05</span>
+          <span class="metod-text"><strong>Proposta de empresa júnior</strong> — elaboração de uma tese de investimento em mineração de ouro na região do Seridó (RN), com análise geológica, logística e proposta de joint venture com a Aura Minerals.</span>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Commodities -->
+    <div class="section-block">
+      <div class="section-label">Portfólio — Commodities</div>
+      <h2>Investimento em <em>commodities minerais</em></h2>
+      <p>
+        O capital de R$ 6.250.000,00 foi alocado em três commodities com perfis complementares, priorizando diversificação entre ativos de proteção e ativos industriais.
+      </p>
+
+      <div class="ativos-grid">
+        <div class="ativo-card">
+          <span class="ativo-icon">🥇</span>
+          <div class="ativo-nome">Commodity 01</div>
+          <div class="ativo-titulo">Ouro</div>
+          <p class="ativo-desc">Principal ativo de refúgio em cenários de incerteza geopolítica e econômica. Comprado a US$ 99.636,69/kg, obtendo 5,201 kg.</p>
+          <span class="ativo-alloc">R$ 3.000.000 · 48% do portfólio</span>
+        </div>
+
+        <div class="ativo-card">
+          <span class="ativo-icon">🥈</span>
+          <div class="ativo-nome">Commodity 02</div>
+          <div class="ativo-titulo">Prata</div>
+          <p class="ativo-desc">Ativo estratégico com demanda industrial crescente, especialmente em painéis solares e eletrônicos. Comprada a US$ 994,76/kg, obtendo 347,32 kg.</p>
+          <span class="ativo-alloc">R$ 2.000.000 · 32% do portfólio</span>
+        </div>
+
+        <div class="ativo-card">
+          <span class="ativo-icon">🟤</span>
+          <div class="ativo-nome">Commodity 03</div>
+          <div class="ativo-titulo">Cobre</div>
+          <p class="ativo-desc">Metal industrial chave na transição energética global. Comprado a US$ 8.998,45/t, obtendo 24,00 toneladas.</p>
+          <span class="ativo-alloc">R$ 1.250.000 · 20% do portfólio</span>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Ações -->
+    <div class="section-block">
+      <div class="section-label">Portfólio — Ações</div>
+      <h2>Investimento em <em>ações de mineradoras</em></h2>
+      <p>
+        O capital de R$ 6.250.000,00 foi distribuído entre três mineradoras com perfis geográficos e estratégicos complementares, capturando a valorização das commodities via mercado de capitais.
+      </p>
+
+      <div class="ativos-grid">
+        <div class="ativo-card">
+          <span class="ativo-icon">🇧🇷</span>
+          <div class="ativo-nome">BVMF — AURA33</div>
+          <div class="ativo-titulo">Aura Minerals</div>
+          <p class="ativo-desc">Mineradora canadense com operações em ouro e cobre no Brasil, Honduras e México. Comprada a R$ 35,30/ação — 56.543 ações.</p>
+          <span class="ativo-alloc">R$ 2.000.000 · 32% do portfólio</span>
+        </div>
+
+        <div class="ativo-card">
+          <span class="ativo-icon">🇨🇦</span>
+          <div class="ativo-nome">NYSE — KGC</div>
+          <div class="ativo-titulo">Kinross Gold Corp</div>
+          <p class="ativo-desc">Mineradora aurífera canadense com portfólio diversificado nas Américas e África. Comprada a CAD 17,86/ação — 41.190 ações.</p>
+          <span class="ativo-alloc">R$ 3.000.000 · 48% do portfólio</span>
+        </div>
+
+        <div class="ativo-card">
+          <span class="ativo-icon">🌍</span>
+          <div class="ativo-nome">NYSE — AEM</div>
+          <div class="ativo-titulo">Agnico Eagle Mines</div>
+          <p class="ativo-desc">Referência global em mineração de ouro com operações no Canadá, México e Finlândia. Comprada a CAD 152,81/ação — 2.005 ações.</p>
+          <span class="ativo-alloc">R$ 1.250.000 · 20% do portfólio</span>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Resultados -->
+    <div class="section-block">
+      <div class="section-label">Resultados</div>
+      <h2>Desempenho do <em>portfólio</em></h2>
+      <p>
+        O portfólio apresentou desempenho positivo em todos os seis ativos ao longo dos três meses da simulação, validando as premissas de análise geopolítica estabelecidas na fase inicial.
+      </p>
+
+      <div class="resultado-box">
+        <div class="resultado-item">
+          <div class="resultado-label">Retorno total simulado</div>
+          <div class="resultado-valor">~19%</div>
+          <div class="resultado-desc">Sobre o capital inicial de R$ 12,5 milhões em três meses (abr–jul/2025)</div>
+        </div>
+        <div class="resultado-item">
+          <div class="resultado-label">Ativos com resultado positivo</div>
+          <div class="resultado-valor">6 / 6</div>
+          <div class="resultado-desc">Ouro, Prata, Cobre, Aura Minerals, Kinross Gold e Agnico Eagle</div>
+        </div>
+      </div>
+
+      <p style="margin-top: 1.5rem;">
+        As premissas que mais se confirmaram foram a <strong>escalada das tensões geopolíticas</strong> — com confrontos diretos entre Israel e Irã em junho de 2025 —, a <strong>demanda industrial por prata</strong> em aplicações de energia renovável e o <strong>desempenho robusto das mineradoras brasileiras</strong>, com as ações da Aura Minerals valorizando de R$ 35,30 para R$ 48,20 no período.
+      </p>
+    </div>
+
+    <hr>
+
+    <!-- Proposta empresa júnior -->
+    <div class="section-block">
+      <div class="section-label">Bônus — Empresa Júnior de Mineração</div>
+      <h2>Proposta de <em>tese de investimento</em></h2>
+      <p>
+        Como parte complementar do trabalho, foi elaborada uma proposta de empresa júnior de mineração, com foco em <strong>ouro orogênico na região do Seridó, Rio Grande do Norte</strong>, em torno do depósito de Borborema.
+      </p>
+
+      <div class="junior-box">
+        <p>
+          O Projeto Borborema, operado pela Aura Minerals, apresenta reservas provadas e prováveis de <strong>812 koz de ouro</strong> em 22,4 Mt de minério com teor médio de 1,12 g/t Au, com potencial adicional de 1,265 Moz ainda em aberto.
+        </p>
+        <p>
+          A proposta contempla uma <strong>joint venture com a Aura Minerals</strong>, permitindo à empresa júnior contribuir com agilidade operacional e áreas exploratórias adicionais (410 km² de direitos), enquanto a parceira maior ofereceria capital, expertise em licenciamento e acesso ao mercado internacional.
+        </p>
+        <p>
+          A região oferece <strong>infraestrutura consolidada</strong> (26 km de Currais Novos, ligação pela BR-226 a Natal), custos competitivos (AISC de US$ 875/oz) e sólido compromisso ESG, incluindo reuso de águas e recomposição florestal com 13.000 mudas a serem plantadas.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <footer>
+    <span>© 2026 — Édipo Mendonça Bandeira · IGc-USP</span>
+    <a href="../index.html">← Voltar ao portfólio</a>
+  </footer>
+
+  <script>
+    const blocks = document.querySelectorAll('.section-block');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    blocks.forEach(b => observer.observe(b));
+  </script>
+
+</body>
+</html>
