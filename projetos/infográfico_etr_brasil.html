@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETRs no Brasil — Mapa de Projetos 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg:        #f5f0e8;
+    --bg2:       #ede7d9;
+    --paper:     #faf7f2;
+    --ink:       #1e1a14;
+    --ink2:      #4a4235;
+    --ink3:      #7a7060;
+    --amber:     #c17f24;
+    --amber-lt:  #e8a84a;
+    --amber-bg:  #fdf0d8;
+    --green:     #3d6b4f;
+    --green-lt:  #5a9470;
+    --green-bg:  #e8f2ec;
+    --rust:      #a0452a;
+    --rust-bg:   #fbeee9;
+    --teal:      #2d6e7e;
+    --teal-bg:   #e5f2f5;
+    --sand:      #b89b6a;
+    --border:    #d4c9b0;
+    --shadow:    rgba(30,26,20,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV DO PORTFÓLIO ── */
+  .site-nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-back:hover { color: var(--ink); }
+  .nav-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink3);
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 20px 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    border-bottom: 3px solid var(--amber);
+  }
+  .header-title { flex: 1; }
+  .header-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--bg);
+  }
+  .header-title h1 em { color: var(--amber-lt); font-style: italic; }
+  .header-title p {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    color: var(--ink3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+  .header-badge {
+    background: var(--amber);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* ── LAYOUT ── */
+  .app-body {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-rows: auto 1fr;
+    min-height: calc(100vh - 120px);
+  }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb {
+    grid-column: 1 / -1;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 400;
+  }
+  .breadcrumb span { color: var(--ink3); }
+  .breadcrumb .crumb { color: var(--amber); cursor: pointer; font-weight: 500; }
+  .breadcrumb .crumb:hover { text-decoration: underline; }
+  .breadcrumb .sep { color: var(--border); }
+
+  /* ── MAP AREA ── */
+  .map-area {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .map-area::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
+    background-size: 24px 24px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .map-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--ink2);
+    margin-bottom: 18px;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .map-title::before {
+    content: '';
+    display: inline-block;
+    width: 18px; height: 3px;
+    background: var(--amber);
+    border-radius: 2px;
+  }
+
+  svg.main-map { width: 100%; max-width: 600px; display: block; max-height: 70vh; }
+  svg.state-map { width: 100%; max-width: 500px; display: block; max-height: 70vh; }
+
+  /* State paths */
+  .state-path {
+    fill: var(--bg2);
+    stroke: var(--bg);
+    stroke-width: 1;
+    transition: fill 0.2s, filter 0.2s;
+  }
+  .state-path.has-project {
+    fill: var(--green-bg);
+    stroke: var(--green);
+    stroke-width: 1.5;
+    cursor: pointer;
+  }
+  .state-path.has-project:hover {
+    fill: var(--green-lt);
+    filter: drop-shadow(0 2px 6px rgba(61,107,79,0.4));
+  }
+  .state-path.active-state {
+    fill: var(--green);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+  }
+
+  /* State/municipality labels */
+  .state-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    fill: var(--ink3);
+    pointer-events: none;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .state-label.has-project { fill: var(--green); font-weight: 600; font-size: 13px; }
+
+  /* Municipality borders (Nível Estadual) */
+  .muni-path {
+    fill: #f2ebd9; 
+    stroke: #d1c1a3; 
+    stroke-width: 0.8;
+    transition: fill 0.2s;
+  }
+  .muni-path:hover {
+    fill: #e3d7bf;
+  }
+
+  /* Municipality dots */
+  .muni-dot {
+    cursor: pointer;
+    transition: r 0.2s, filter 0.2s;
+  }
+  .muni-dot circle.outer {
+    fill: rgba(193,127,36,0.15);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  .muni-dot circle.inner {
+    stroke: var(--ink);
+    stroke-width: 1;
+    transition: all 0.2s;
+  }
+  .muni-dot:hover circle.inner { r: 9; stroke-width: 1.5; filter: brightness(1.2); }
+  .muni-dot:hover circle.outer { r: 16; }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; r: 10; }
+    50% { opacity: 1; r: 14; }
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--ink);
+    color: var(--bg);
+    overflow-y: auto;
+    padding: 0;
+    border-left: 1px solid #2e2a22;
+  }
+  .sidebar-inner { padding: 24px 22px; }
+
+  .sidebar-section { margin-bottom: 28px; }
+  .sidebar-section h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #2e2a22;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.78rem; color: var(--bg2); }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+  .swatch-lavra    { background: #3d6b4f; border: 1.5px solid #5a9470; }
+  .swatch-avancado { background: #c17f24; border: 1.5px solid #e8a84a; }
+  .swatch-inicial  { background: #2d6e7e; border: 1.5px solid #4a96a8; }
+  .swatch-publico  { background: #6b5b3e; border: 1.5px solid #9a8060; }
+
+  .stage-count {
+    background: #2a2520; border-radius: 4px; padding: 10px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;
+  }
+  .stage-count .num { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--amber-lt); line-height: 1; }
+  .stage-count .label { color: var(--ink3); font-size: 0.72rem; }
+
+  /* ── PROJECT CARD ── */
+  .card-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(30,26,20,0.6); z-index: 100; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(3px);
+  }
+  .card-overlay.active { display: flex; }
+
+  .project-card {
+    background: var(--paper); border-radius: 4px; max-width: 560px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(30,26,20,0.4); animation: cardIn 0.25s cubic-bezier(0.16,1,0.3,1);
+  }
+  @keyframes cardIn { from { transform: translateY(20px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  .card-header { padding: 22px 24px 18px; border-bottom: 2px solid var(--border); position: relative; }
+  .card-stage-pill { display: inline-block; font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; font-weight: 500; margin-bottom: 8px; }
+  .pill-lavra    { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-lt); }
+  .pill-avancado { background: var(--amber-bg); color: var(--rust);  border: 1px solid var(--amber); }
+  .pill-inicial  { background: var(--teal-bg);  color: var(--teal);  border: 1px solid var(--teal); }
+  .pill-publico  { background: #f0ece4; color: var(--ink2); border: 1px solid var(--border); }
+
+  .card-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--ink); line-height: 1.15; margin-bottom: 4px; }
+  .card-subtitle { font-size: 0.8rem; color: var(--ink3); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .card-close { position: absolute; top: 18px; right: 18px; background: none; border: 1px solid var(--border); border-radius: 2px; cursor: pointer; color: var(--ink2); font-size: 1rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .card-close:hover { background: var(--bg2); }
+
+  .card-body { padding: 20px 24px 24px; }
+
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .card-field { background: var(--bg); border-radius: 3px; padding: 10px 12px; border-left: 3px solid var(--border); }
+  .card-field.accent { border-left-color: var(--amber); }
+  .card-field.green  { border-left-color: var(--green); }
+  .card-field.teal   { border-left-color: var(--teal); }
+  .card-field label { display: block; font-size: 0.65rem; font-family: 'DM Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink3); margin-bottom: 4px; }
+  .card-field .value { font-size: 0.85rem; font-weight: 500; color: var(--ink); line-height: 1.3; }
+  .card-field .value.mono { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--amber); }
+  .card-field.span2 { grid-column: span 2; }
+
+  .card-notes { background: var(--green-bg); border-radius: 3px; padding: 12px 14px; font-size: 0.8rem; line-height: 1.6; color: var(--ink2); border-left: 3px solid var(--green); }
+  .card-notes strong { color: var(--green); font-weight: 500; }
+
+  /* ── INSTRUCTION TEXT ── */
+  .hint-text { font-size: 0.78rem; color: var(--ink3); text-align: center; margin-top: 16px; display: flex; align-items: center; gap: 6px; justify-content: center; font-style: italic; }
+
+  /* ── BACK BUTTON ── */
+  .back-btn { background: none; border: 1px solid var(--border); padding: 7px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: var(--ink2); cursor: pointer; border-radius: 2px; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; transition: background 0.15s, color 0.15s; align-self: flex-start; }
+  .back-btn:hover { background: var(--bg2); color: var(--ink); }
+
+  /* Tooltip */
+  .tooltip { position: fixed; background: var(--ink); color: var(--bg); font-size: 0.75rem; font-family: 'DM Sans', sans-serif; padding: 5px 10px; border-radius: 3px; pointer-events: none; z-index: 200; display: none; white-space: nowrap; border: 1px solid var(--amber); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+
+  .map-view { display: none; }
+  .map-view.active { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+  @media (max-width: 768px) {
+    .site-nav { padding: 14px 18px; }
+    .nav-title { display: none; }
+    .app-body { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    header { padding: 14px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="nav-back" href="../index.html">← Voltar ao portfólio</a>
+  <span class="nav-title">Projeto Acadêmico · Infográfico Interativo</span>
+</nav>
+
+<header>
+  <div class="header-title">
+    <h1>Elementos Terras Raras no <em>Brasil</em></h1>
+    <p>Mapa interativo de projetos · Pesquisa, Exploração &amp; Lavra · 2026</p>
+  </div>
+  <div class="header-badge" id="headerCount">Carregando...</div>
+</header>
+
+<div class="app-body">
+  <div class="map-area" id="mapArea">
+    <div class="breadcrumb" style="grid-column:1;margin: -28px -32px 20px;padding:10px 32px;background:var(--bg2);border-bottom:1px solid var(--border);width:calc(100% + 64px);display:flex;align-items:center;gap:8px;font-size:0.82rem;">
+      <span class="crumb" id="bc-brasil" onclick="goToBrasil()">Brasil</span>
+      <span class="sep" id="bc-sep" style="display:none">›</span>
+      <span id="bc-state" style="color:var(--ink2);font-weight:500;display:none"></span>
+    </div>
+
+    <div class="map-view active" id="view-brasil">
+      <div class="map-title">Selecione um estado destacado</div>
+      <svg class="main-map" id="brazilSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+      <p class="hint-text"><span class="hint-icon">◈</span> Clique nos estados em verde para explorar os projetos</p>
+    </div>
+
+    <div class="map-view" id="view-state">
+      <button class="back-btn" id="back-btn-state" onclick="goToBrasil()">← Voltar ao Brasil</button>
+      <div class="map-title" id="state-map-title">Estado</div>
+      <svg class="state-map" id="stateSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+      <p class="hint-text" style="margin-top:12px"><span class="hint-icon">◉</span> Clique num município para ver os detalhes do projeto</p>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-section">
+        <h3>Legenda — Estágio</h3>
+        <div class="legend-item"><div class="legend-swatch swatch-lavra"></div>Lavra / Produção comercial</div>
+        <div class="legend-item"><div class="legend-swatch swatch-avancado"></div>Exploração avançada / Desenvolvimento</div>
+        <div class="legend-item"><div class="legend-swatch swatch-inicial"></div>Exploração inicial / Tecnológico</div>
+        <div class="legend-item"><div class="legend-swatch swatch-publico"></div>Pesquisa pública (SGB)</div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Panorama nacional</h3>
+        <div class="stage-count"><div><div class="num">1</div><div class="label">Em produção comercial</div></div></div>
+        <div class="stage-count"><div><div class="num">4</div><div class="label">Exploração avançada</div></div></div>
+        <div class="stage-count"><div><div class="num">2</div><div class="label">Fase inicial / Tecnológico</div></div></div>
+        <div class="stage-count"><div><div class="num">1</div><div class="label">Pesquisa regional (SGB)</div></div></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Tipos de depósito</h3>
+        <div class="legend-item" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <span style="font-weight:500;color:var(--bg);">Argila iônica</span>
+          <span style="color:var(--ink3);font-size:0.73rem">Serra Verde (GO) · Caldeira (MG) · Carina (GO)</span>
+        </div>
+        <div class="legend-item" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
+          <span style="font-weight:500;color:var(--bg);">Rocha dura / Carbonatito</span>
+          <span style="color:var(--ink3);font-size:0.73rem">Araxá (MG)</span>
+        </div>
+        <div class="legend-item" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
+          <span style="font-weight:500;color:var(--bg);">Areias pesadas costeiras</span>
+          <span style="color:var(--ink3);font-size:0.73rem">Bahia/Energy Fuels (BA)</span>
+        </div>
+        <div class="legend-item" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
+          <span style="font-weight:500;color:var(--bg);">Laterita/Saprolito</span>
+          <span style="color:var(--ink3);font-size:0.73rem">Tiros (MG)</span>
+        </div>
+        <div class="legend-item" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
+          <span style="font-weight:500;color:var(--bg);">Rejeito industrial</span>
+          <span style="color:var(--ink3);font-size:0.73rem">Uberaba/Rainbow (MG)</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Dado estratégico</h3>
+        <div style="font-size:0.78rem;color:var(--ink3);line-height:1.6;background:#2a2520;border-radius:3px;padding:12px;border-left:3px solid var(--amber);">
+          O Brasil detém <strong style="color:var(--amber-lt)">23% das reservas mundiais</strong> de ETRs (~21 Mt), sendo a 2ª maior do mundo. Em 2024, produziu apenas <strong style="color:var(--amber-lt)">20 t</strong> — menos de 1% da produção global.
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Fontes e Dados</h3>
+        <div style="font-size:0.72rem;color:var(--ink3);line-height:1.6;">
+          • Agência Nacional de Mineração (ANM)<br>
+          • Serviço Geológico do Brasil (SGB)<br>
+          • Relatórios Técnicos (JORC / NI 43-101)<br>
+          • Divulgações corporativas ao mercado (2025/2026)<br>
+          • USGS Mineral Commodity Summaries
+        </div>
+      </div>
+
+      <div class="sidebar-section" style="margin-top: -10px;">
+        <h3>Autoria</h3>
+        <div style="font-size:0.85rem;color:var(--bg2);line-height:1.4;">
+          <strong>Édipo Mendonça Bandeira</strong><br>
+          <span style="font-size:0.75rem;color:var(--ink3);">Bacharelando em Geologia (IGc-USP)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="card-overlay" id="cardOverlay" onclick="closeCard(event)">
+  <div class="project-card" id="projectCard">
+    <div class="card-header">
+      <button class="card-close" onclick="closeCardBtn()">✕</button>
+      <div class="card-stage-pill" id="card-pill">Estágio</div>
+      <div class="card-title" id="card-title">Nome do Projeto</div>
+      <div class="card-subtitle">
+        <span>📍 <span id="card-loc"></span></span>
+        <span>🏢 <span id="card-empresa"></span></span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-grid" id="card-grid"></div>
+      <div class="card-notes" id="card-notes"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DADOS DOS PROJETOS E COORDENADAS
+// ─────────────────────────────────────────────
+const PROJECTS = {
+  'Pela Ema': {
+    empresa: 'Serra Verde → USA Rare Earth (Nasdaq: USAR)', stage: 'lavra', stageName: 'Lavra — Produção Comercial',
+    tipo: 'Argila iônica', etrs: 'Nd, Pr, Dy, Tb', recurso: '910 Mt (SGB)', teor: 'Variável (iônico)',
+    producao: '6.400 t/ano TREO (meta 2027)', area: 'Minaçu, GO',
+    extra1label: 'Vida útil da mina', extra1: '25 anos', extra2label: 'Início da produção', extra2: 'Janeiro 2024',
+    notes: '<strong>Marco histórico:</strong> primeira mina de argila iônica em escala fora da Ásia. Em abril de 2026, a USA Rare Earth anunciou aquisição da Serra Verde Group. Detém acordo de offtake de 15 anos com governo dos EUA.'
+  },
+  'Carina': {
+    empresa: 'Aclara Resources', stage: 'avancado', stageName: 'Exploração Avançada',
+    tipo: 'Argila iônica', etrs: 'Nd, Pr, Dy, Tb', recurso: '168,1 Mt (inferido)', teor: '1.510 ppm TREO',
+    producao: '208 t/ano DyTb + 1.190 t/ano NdPr', area: 'Nova Roma, GO (NE goiano)',
+    extra1label: 'Investimento previsto', extra1: '~US$ 600 Mi', extra2label: 'Início da operação', extra2: 'Previsto 2028',
+    notes: '<strong>Colheita Mineral Circular:</strong> sem explosivos, britagem ou rejeitos líquidos; reutiliza 95% da água. Planta piloto inaugurada em 2025. Construção a partir de 2027.'
+  },
+  'Caldeira': {
+    empresa: 'Meteoric Resources (ASX: MEI)', stage: 'avancado', stageName: 'Exploração Avançada — PFS concluído',
+    tipo: 'Argila iônica (Poços de Caldas)', etrs: 'Nd, Pr, Dy, Tb', recurso: '1,5 Bt a 2.359 ppm TREO', teor: 'Reserva: 103 Mt a 4.091 ppm TREO',
+    producao: '13.584 t/ano TREO (média)', area: 'Caldas / Poços de Caldas, MG',
+    extra1label: 'Capex total (PFS)', extra1: 'US$ 443 Mi', extra2label: 'NPV pós-impostos', extra2: 'US$ 1,3 Bi (IRR 28%)',
+    notes: '<strong>Maior depósito de argila iônica fora da China.</strong> Planta piloto em Poços de Caldas. Sem barragem de rejeitos; energia 100% renovável. Produção prevista para 2028.'
+  },
+  'Araxá': {
+    empresa: 'St George Mining (ASX: SGQ)', stage: 'avancado', stageName: 'Exploração Avançada',
+    tipo: 'Rocha dura — carbonatito', etrs: 'Sm, Lu, Tb, Gd + Nióbio', recurso: '70,91 Mt (JORC, mar/2026)', teor: '4,06% TREO · 0,62% Nb₂O₅',
+    producao: 'Ainda sem estimativa', area: 'Araxá, MG',
+    extra1label: 'Tipo', extra1: 'Maior dep. hard-rock da América do Sul', extra2label: 'Parceiros', extra2: 'MagBras (BR) · REalloys (EUA)',
+    notes: '<strong>Maior depósito de rocha dura de ETRs da América do Sul.</strong> Sondagem diamantada em andamento. Aliança com Técnicas Reunidas para mercados europeus.'
+  },
+  'Tiros': {
+    empresa: 'Resouro Strategic Metals', stage: 'avancado', stageName: 'Exploração Avançada — PEA',
+    tipo: 'Laterita/saprolito sobre alcalinas', etrs: 'NdPr + DyTb · TiO₂ principal', recurso: '1,7 Bt a 3.900 ppm TREO e 12% TiO₂', teor: '120 Mt a 9.000 ppm TREO',
+    producao: 'Em estudo (PEA em andamento)', area: 'Tiros, MG',
+    extra1label: 'Recurso M&I', extra1: '1,4 Bt a 4.000 ppm TREO + 12% TiO₂', extra2label: 'Conteúdo M&I', extra2: '5,5 Mt TREO + 165 Mt TiO₂',
+    notes: '<strong>Maior depósito JORC combinado de ETR + titânio já definido no mundo.</strong> Flowsheet de processo selecionado. Produto final: TiO₂ e sulfato misto de ETR.'
+  },
+  'Uberaba': {
+    empresa: 'Rainbow Rare Earths + Mosaic Fertilizantes', stage: 'inicial', stageName: 'Desenvolvimento Tecnológico',
+    tipo: 'Rejeito industrial — fosfogesso', etrs: 'NdPr · Sm, Eu, Gd', recurso: 'Pilha de fosfogesso', teor: '0,45–0,79% TREO',
+    producao: '1.900 t/ano NdPr + 600 t/ano SEG+', area: 'Uberaba, MG',
+    extra1label: 'Throughput planta', extra1: '2,7 Mt/ano de fosfogesso', extra2label: 'Próximos passos', extra2: 'PFS → DFS (2026) → construção (2027)',
+    notes: '<strong>Extração a partir de resíduo.</strong> Produção de fosfogesso contínua → vida útil longa. Sem necessidade de lavra mineral clássica.'
+  },
+  'Bahia': {
+    empresa: 'Energy Fuels (NYSE: UUUU)', stage: 'inicial', stageName: 'Exploração Inicial',
+    tipo: 'Areias pesadas costeiras', etrs: 'Monazita (subproduto)', recurso: '3.000–10.000 t/ano monazita', teor: 'Monazita 0,62–12,82% no conc.',
+    producao: '1.500–5.000 t/ano TREO', area: 'Prado/Alcobaça/Caravelas, BA',
+    extra1label: 'Área total', extra1: '15.090 ha · 17 concessões', extra2label: 'Destino da monazita', extra2: 'White Mesa Mill (Utah, EUA)',
+    notes: '<strong>Lavra prevista para 2029.</strong> ETR é subproduto: interesse primário em ilmenita, rutilo e zircão para mercados de titânio e zircônio.'
+  },
+  'SGB — Pesquisa Nacional': {
+    empresa: 'Serviço Geológico do Brasil', stage: 'publico', stageName: 'Pesquisa Geológica Pública',
+    tipo: 'Pesquisa regional', etrs: 'Argilas iônicas, monazita, etc.', recurso: '>20 Mt TREO (potencial estimado)', teor: 'Variável',
+    producao: 'N/A (pesquisa)', area: 'GO, MG, BA, AM, etc.',
+    extra1label: 'Programa', extra1: 'PAC Mineral', extra2label: 'Focos principais', extra2: 'Alto Paranaíba (MG), Bahia, Amazônia',
+    notes: '<strong>Projeto de Avaliação do Potencial de ETRs no Brasil.</strong> Frentes ativas em MG e na Bahia. Potencial identificado na Amazônia (AM/RR/PA).'
+  }
+};
+
+const STATE_PROJECTS = {
+  'GO': [
+    { name: 'Minaçu', coords: [-48.22, -13.53], project: 'Pela Ema' },
+    { name: 'Nova Roma', coords: [-46.88, -13.74], project: 'Carina' }
+  ],
+  'MG': [
+    { name: 'Poços de Caldas', coords: [-46.56, -21.78], project: 'Caldeira' },
+    { name: 'Araxá', coords: [-46.94, -19.59], project: 'Araxá' },
+    { name: 'Tiros', coords: [-45.93, -19.05], project: 'Tiros' },
+    { name: 'Uberaba', coords: [-47.93, -19.74], project: 'Uberaba' },
+    { name: 'Alto Paranaíba\n(SGB)', coords: [-46.51, -18.58], project: 'SGB — Pesquisa Nacional' }
+  ],
+  'BA': [
+    { name: 'Prado / Caravelas', coords: [-39.22, -17.53], project: 'Bahia' }
+  ],
+  'AM': [
+    { name: 'Pres. Figueiredo\n(SGB)', coords: [-60.02, -2.03], project: 'SGB — Pesquisa Nacional' }
+  ]
+};
+
+const ufToName = {
+  "RO": "Rondônia", "AC": "Acre", "AM": "Amazonas", "RR": "Roraima", "PA": "Pará", "AP": "Amapá", "TO": "Tocantins",
+  "MA": "Maranhão", "PI": "Piauí", "CE": "Ceará", "RN": "Rio Grande do Norte", "PB": "Paraíba", "PE": "Pernambuco", "AL": "Alagoas", "SE": "Sergipe", "BA": "Bahia",
+  "MG": "Minas Gerais", "ES": "Espírito Santo", "RJ": "Rio de Janeiro", "SP": "São Paulo",
+  "PR": "Paraná", "SC": "Santa Catarina", "RS": "Rio Grande do Sul",
+  "MS": "Mato Grosso do Sul", "MT": "Mato Grosso", "GO": "Goiás", "DF": "Distrito Federal"
+};
+
+const estadosComProjetos = Object.keys(STATE_PROJECTS);
+document.getElementById('headerCount').textContent = Object.keys(PROJECTS).length + " projetos mapeados";
+
+// ─────────────────────────────────────────────
+// D3.JS MAP LOGIC
+// ─────────────────────────────────────────────
+
+async function initBrazilMap() {
+  try {
+    const url = 'https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson';
+    const response = await fetch(url);
+    const brazilGeoJson = await response.json();
+
+    const svg = d3.select("#brazilSvg");
+    const width = 800, height = 800;
+    svg.attr("viewBox", `0 0 ${width} ${height}`);
+
+    const projection = d3.geoMercator().fitExtent([[10, 10], [width - 10, height - 10]], brazilGeoJson);
+    const geoPath = d3.geoPath().projection(projection);
+
+    svg.selectAll("path")
+      .data(brazilGeoJson.features)
+      .enter()
+      .append("path")
+      .attr("d", geoPath)
+      .attr("class", d => {
+        const uf = d.properties.sigla; 
+        return estadosComProjetos.includes(uf) ? "state-path has-project" : "state-path";
+      })
+      .attr("id", d => "st-" + d.properties.sigla)
+      .on("click", function(event, d) {
+        const uf = d.properties.sigla;
+        if (estadosComProjetos.includes(uf)) {
+          d3.selectAll(".state-path").classed("active-state", false);
+          d3.select(this).classed("active-state", true);
+          goToState(uf);
+        }
+      })
+      .on("mouseenter", function(event, d) {
+        const uf = d.properties.sigla;
+        if (estadosComProjetos.includes(uf)) {
+            const name = ufToName[uf];
+            const count = STATE_PROJECTS[uf].length;
+            showTooltip(event, `${name} — ${count} projeto${count > 1 ? 's' : ''}`);
+        }
+      })
+      .on("mouseleave", hideTooltip)
+      .on("mousemove", moveTooltip);
+
+    svg.selectAll(".state-label")
+      .data(brazilGeoJson.features)
+      .enter()
+      .append("text")
+      .attr("class", d => {
+          const uf = d.properties.sigla;
+          return estadosComProjetos.includes(uf) ? "state-label has-project" : "state-label";
+      })
+      .attr("x", d => geoPath.centroid(d)[0])
+      .attr("y", d => geoPath.centroid(d)[1])
+      .text(d => d.properties.sigla)
+      .style("cursor", d => estadosComProjetos.includes(d.properties.sigla) ? "pointer" : "default")
+      .on("click", function(event, d) {
+        const uf = d.properties.sigla;
+        if (estadosComProjetos.includes(uf)) goToState(uf);
+      });
+      
+  } catch (e) {
+    console.error("Erro ao desenhar o mapa do Brasil:", e);
+    document.getElementById('brazilSvg').innerHTML = `<text x="50%" y="50%" text-anchor="middle" fill="#a0452a">Erro de carregamento do mapa.</text>`;
+  }
+}
+
+async function goToState(stateCode) {
+  document.getElementById('bc-sep').style.display = 'inline';
+  document.getElementById('bc-state').style.display = 'inline';
+  document.getElementById('bc-state').textContent = ufToName[stateCode];
+
+  document.getElementById('view-brasil').classList.remove('active');
+  document.getElementById('view-state').classList.add('active');
+  document.getElementById('state-map-title').textContent = ufToName[stateCode];
+
+  const svg = d3.select("#stateSvg");
+  svg.selectAll("*").remove(); 
+
+  const codeMapping = {
+    "RO": "11", "AC": "12", "AM": "13", "RR": "14", "PA": "15", "AP": "16", "TO": "17",
+    "MA": "21", "PI": "22", "CE": "23", "RN": "24", "PB": "25", "PE": "26", "AL": "27", "SE": "28", "BA": "29",
+    "MG": "31", "ES": "32", "RJ": "33", "SP": "35", "PR": "41", "SC": "42", "RS": "43", "MS": "50", "MT": "51", "GO": "52", "DF": "53"
+  };
+  const numCode = codeMapping[stateCode];
+
+  const url = `https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-${numCode}-mun.json`;
+  
+  try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Erro ao baixar dados do município");
+      const stateGeoJson = await response.json();
+
+      const width = 600, height = 600;
+      svg.attr("viewBox", `0 0 ${width} ${height}`);
+      
+      const projection = d3.geoMercator().fitExtent([[20, 20], [width - 20, height - 20]], stateGeoJson);
+      const geoPath = d3.geoPath().projection(projection);
+
+      svg.selectAll("path")
+        .data(stateGeoJson.features)
+        .enter()
+        .append("path")
+        .attr("d", geoPath)
+        .attr("class", "muni-path");
+
+      const projects = STATE_PROJECTS[stateCode] || [];
+      
+      const dots = svg.selectAll(".muni-dot-group")
+        .data(projects)
+        .enter()
+        .append("g")
+        .attr("class", "muni-dot")
+        .attr("data-project", d => d.project)
+        .on("click", (event, d) => openCard(d.project))
+        .on("mouseenter", (event, d) => showTooltip(event, d.name + ' → ' + d.project))
+        .on("mouseleave", hideTooltip)
+        .on("mousemove", moveTooltip);
+
+      dots.each(function(d) {
+         const [x, y] = projection(d.coords);
+         if (!x || !y) return; 
+
+         const projData = PROJECTS[d.project];
+         const stageColor = {
+            lavra: '#3d6b4f', avancado: '#c17f24', inicial: '#2d6e7e', publico: '#6b5b3e'
+         }[projData?.stage || 'avancado'];
+
+         const g = d3.select(this);
+         
+         g.append("circle").attr("class", "outer").attr("cx", x).attr("cy", y).attr("r", 14).attr("fill", stageColor);
+         g.append("circle").attr("class", "inner").attr("cx", x).attr("cy", y).attr("r", 6).attr("fill", stageColor);
+
+         const labelLines = d.name.split('\n');
+         labelLines.forEach((line, i) => {
+             g.append("text")
+              .attr("x", x)
+              .attr("y", y + 20 + (i * 12))
+              .style("font-family", "DM Sans, sans-serif")
+              .style("font-size", "11px")
+              .style("font-weight", "600")
+              .style("fill", "var(--ink)")
+              .style("text-shadow", "1px 1px 2px var(--paper), -1px -1px 2px var(--paper), 1px -1px 2px var(--paper), -1px 1px 2px var(--paper)")
+              .style("text-anchor", "middle")
+              .style("pointer-events", "none")
+              .text(line);
+         });
+      });
+
+  } catch(e) {
+      console.error("Erro ao carregar mapa do estado:", e);
+      svg.append("text").attr("x", "50%").attr("y", "50%").attr("text-anchor", "middle").text("Ocorreu um erro ao buscar malha dos municípios.");
+  }
+}
+
+function goToBrasil() {
+  document.getElementById('view-brasil').classList.add('active');
+  document.getElementById('view-state').classList.remove('active');
+  document.getElementById('bc-sep').style.display = 'none';
+  document.getElementById('bc-state').style.display = 'none';
+  d3.selectAll('.state-path').classed('active-state', false);
+}
+
+window.addEventListener("DOMContentLoaded", initBrazilMap);
+
+// ─────────────────────────────────────────────
+// CARD & TOOLTIP LOGIC
+// ─────────────────────────────────────────────
+const PILL_CLASSES = { lavra: 'pill-lavra', avancado: 'pill-avancado', inicial: 'pill-inicial', publico: 'pill-publico' };
+
+function openCard(projectName) {
+  const p = PROJECTS[projectName];
+  if (!p) return;
+
+  const pill = document.getElementById('card-pill');
+  pill.textContent = p.stageName;
+  pill.className = 'card-stage-pill ' + (PILL_CLASSES[p.stage] || '');
+
+  document.getElementById('card-title').textContent = projectName;
+  document.getElementById('card-loc').textContent = p.area;
+  document.getElementById('card-empresa').textContent = p.empresa;
+
+  document.getElementById('card-grid').innerHTML = `
+    <div class="card-field accent"><label>Tipo de Depósito</label><div class="value">${p.tipo}</div></div>
+    <div class="card-field accent"><label>ETRs Principais</label><div class="value mono">${p.etrs}</div></div>
+    <div class="card-field green"><label>Recurso Estimado</label><div class="value">${p.recurso}</div></div>
+    <div class="card-field green"><label>Teor Médio / Reserva</label><div class="value mono">${p.teor}</div></div>
+    <div class="card-field teal"><label>Produção / Meta</label><div class="value">${p.producao}</div></div>
+    <div class="card-field teal"><label>${p.extra1label}</label><div class="value">${p.extra1}</div></div>
+    <div class="card-field span2"><label>${p.extra2label}</label><div class="value">${p.extra2}</div></div>
+  `;
+  document.getElementById('card-notes').innerHTML = p.notes;
+  document.getElementById('cardOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCardBtn() {
+  document.getElementById('cardOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function closeCard(e) { if (e.target === document.getElementById('cardOverlay')) closeCardBtn(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCardBtn(); });
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(event, text) {
+  tooltip.textContent = text;
+  tooltip.style.display = 'block';
+  moveTooltip(event);
+}
+function hideTooltip() { tooltip.style.display = 'none'; }
+function moveTooltip(event) {
+  tooltip.style.left = (event.clientX + 14) + 'px';
+  tooltip.style.top  = (event.clientY - 28) + 'px';
+}
+</script>
+</body>
+</html>
